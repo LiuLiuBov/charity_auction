@@ -11,5 +11,30 @@ class CategorySerializer(serializers.ModelSerializer):
 class BidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid
-        fields = ['id', 'bidder', 'auction_listing', 'amount']
+        fields = ['id', 'bidder', 'amount']
         read_only_fields = ['bidder']
+
+
+class AuctionListingSerializer(serializers.ModelSerializer):
+    bids = BidSerializer(many=True, read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username')
+
+    class Meta:
+        model = AuctionListing
+        fields = ['id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids']
+        read_only_fields = ['owner', 'current_bid']
+
+    def validate_title(self, value):
+        if len(value) < 5:
+            raise serializers.ValidationError("Title must be at least 5 characters long.")
+        return value
+
+    def validate_description(self, value):
+        if len(value) < 10:
+            raise serializers.ValidationError("Description must be at least 10 characters long.")
+        return value
+
+    def validate_starting_bid(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Starting bid must be greater than 0.")
+        return value
