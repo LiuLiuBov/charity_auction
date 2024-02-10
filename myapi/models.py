@@ -20,6 +20,7 @@ class AuctionListing(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2)
+    current_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     active = models.BooleanField(default=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='auctions', null=True)
 
