@@ -1,7 +1,6 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from .models import Bid
 
 
 class BidConsumer(AsyncWebsocketConsumer):
@@ -33,6 +32,8 @@ class BidConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_bids(self):
+        from .models import Bid
+
         bids = list(Bid.objects.filter(auction_listing_id=self.auction_id)
                     .values('id', 'amount', 'bidder__username', 'created_at')
                     .order_by('-created_at'))
