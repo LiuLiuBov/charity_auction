@@ -6,8 +6,17 @@ from rest_framework.response import Response
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from .models import AuctionListing, Bid
-from .serializers import BidSerializer
+from .serializers import *
+
+
+class CategoryListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class CategoryDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class BidCreateAPIView(generics.CreateAPIView):
