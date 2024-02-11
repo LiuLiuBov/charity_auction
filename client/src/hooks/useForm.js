@@ -34,6 +34,15 @@ export const useForm = (initialValues) => {
     if ('repeatPassword' in values)
       tempErrors.repeatPassword = values.password === values.repeatPassword ? '' : 'Passwords do not match.';
 
+    if ('title' in values)
+      tempErrors.title = values.title.length >= 5 ? '' : 'Title must be at least 5 characters long.';
+
+    if ('description' in values)
+      tempErrors.description = values.description.length >= 10 ? '' : 'Description must be at least 10 characters long.';
+
+    if ('starting_bid' in values)
+      tempErrors.starting_bid = values.starting_bid > 0 ? '' : 'Starting bid must be greater than 0.';
+
     setErrors({
       ...tempErrors
     });

@@ -37,7 +37,7 @@ class DefaultPermissionsMixin():
         if self.request.method == 'GET':
             return [permissions.AllowAny()]
         else:
-            return [permissions.IsAuthenticated(), permissions.IsAdminUser()]
+            return [permissions.IsAuthenticated()]
 
 
 class CategoryListCreateAPIView(DefaultPermissionsMixin, generics.ListCreateAPIView):
@@ -89,6 +89,7 @@ class AuctionListingListCreateAPIView(DefaultPermissionsMixin, generics.ListCrea
     queryset = AuctionListing.objects.all()
     serializer_class = AuctionListingSerializer
     parser_classes = (MultiPartParser, JSONParser)
+
 
     def perform_create(self, serializer):
         with transaction.atomic():

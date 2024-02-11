@@ -58,7 +58,7 @@ class AuctionListingPhotoSerializer(serializers.ModelSerializer):
 class AuctionListingSerializer(serializers.ModelSerializer):
     bids = BidSerializer(many=True, read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
-    photos = AuctionListingPhotoSerializer(many=True)
+    photos = AuctionListingPhotoSerializer(many=True, required=False)
 
     class Meta:
         model = AuctionListing

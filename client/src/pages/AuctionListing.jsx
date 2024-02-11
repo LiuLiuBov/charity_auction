@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from '../hooks/useForm';
 import {
-  Container, Form, FormGroup, Label, Input, Button, Row, Col
+  Container, Form, FormGroup, Label, Input, Button, Row, Col, FormFeedback
 } from 'reactstrap';
 import axios from 'axios';
+import {useNavigate} from "react-router-dom";
 
 const AuctionListing = () => {
-  const { values, handleChange, setValues } = useForm({
+  const { values, handleChange, setValues, validate, errors, setErrors } = useForm({
     title: '',
     description: '',
     category: '',
@@ -17,9 +18,9 @@ const AuctionListing = () => {
   const [images, setImages] = useState([]);
   const [filePreviews, setFilePreviews] = useState([]);
   const imagesNumber = 8;
+  const navigate = useNavigate();
 
    const handleImageChange = (event) => {
-    // Clear previous selections if more than imagesNumber images are selected
     if (event.target.files.length > imagesNumber) {
       event.target.value = null;
       alert(`You can only upload up to ${imagesNumber} images.`);
@@ -59,33 +60,43 @@ const AuctionListing = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    const isValid = validate();
+    if (!isValid) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', values.title);
     formData.append('description', values.description);
     formData.append('starting_bid', values.starting_bid);
     formData.append('category', values.category);
-    images.forEach((image, index) => {
-      formData.append(`images[${index}]`, image);
+
+    images.forEach((image) => {
+      formData.append('photos', image);
     });
 
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/auctions/', formData, {
         headers: {
-          'Authorization': `Bearer token`, // Replace with real token
-          'Content-Type': 'multipart/form-data', // for including files in formData
+          'Authorization': `Token ${token}`,
         },
       });
       console.log(response.data);
-      // Handle success - perhaps redirect to the listing page or clear the form
+      navigate('/');
     } catch (error) {
-      console.error('Error creating auction listing:', error);
-      // Handle error - show an error message to the user
+      console.error('Error creating auction listing:', error.response.data);
     }
-  };
+};
 
   return (
     <Container>
@@ -122,7 +133,9 @@ const AuctionListing = () => {
                 value={values.title}
                 onChange={handleChange}
                 required
+                invalid={!!errors.title}
               />
+              {errors.title && <FormFeedback>{errors.title}</FormFeedback>}
             </FormGroup>
 
             <FormGroup>
@@ -134,7 +147,9 @@ const AuctionListing = () => {
                 value={values.description}
                 onChange={handleChange}
                 required
+                invalid={!!errors.description}
               />
+              {errors.description && <FormFeedback>{errors.description}</FormFeedback>}
             </FormGroup>
 
             <FormGroup>
@@ -146,7 +161,9 @@ const AuctionListing = () => {
                 value={values.starting_bid}
                 onChange={handleChange}
                 required
+                invalid={!!errors.starting_bid}
               />
+              {errors.starting_bid && <FormFeedback>{errors.starting_bid}</FormFeedback>}
             </FormGroup>
 
             <FormGroup>
