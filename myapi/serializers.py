@@ -1,34 +1,31 @@
 from django.contrib.auth import authenticate
-from rest_framework import serializers
 from .models import *
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from rest_framework import serializers
+User = get_user_model()
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'email')
+        fields = ('id', 'username', 'email', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
+        validated_data['password'] = make_password(validated_data['password'])
+        return super(UserSerializer, self).create(validated_data)
 
 
-class SignInSerializer(serializers.Serializer):
+class AuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(style={'input_type': 'password'})
 
     def validate(self, data):
         user = authenticate(email=data['email'], password=data['password'])
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Incorrect Credentials")
-
+        if not user:
+            raise serializers.ValidationError('Unable to log in with provided credentials.')
+        return user
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

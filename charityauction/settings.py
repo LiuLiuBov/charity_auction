@@ -154,5 +154,6 @@ AUTHENTICATION_BACKENDS = [
     'myapi.backends.EmailAuthBackend',
 ]
 
+AUTH_USER_MODEL = 'myapi.CustomUser'
 
 CORS_ALLOW_ALL_ORIGINS = True
