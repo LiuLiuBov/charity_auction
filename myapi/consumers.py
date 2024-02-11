@@ -28,7 +28,8 @@ class BidConsumer(AsyncWebsocketConsumer):
         )
 
     async def broadcast_bid(self, event):
-        await self.send(text_data=json.dumps(event['message']))
+        bids = await self.get_bids()
+        await self.send(text_data=json.dumps(bids))
 
     @database_sync_to_async
     def get_bids(self):
@@ -57,7 +58,7 @@ class CommentConsumer(AsyncWebsocketConsumer):
 
     async def comment_created(self, event):
         comments = await self.get_comments()
-        await self.send(text_data=json.dumps(event['message']))
+        await self.send(text_data=json.dumps(comments))
 
     @database_sync_to_async
     def get_comments(self):
