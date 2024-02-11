@@ -1,35 +1,30 @@
 from django.db import transaction
-from django.shortcuts import render
-from rest_framework import generics, serializers, status, permissions
+from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from rest_framework.parsers import MultiPartParser, JSONParser
-from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-
 from .serializers import *
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import UserSerializer, AuthTokenSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
-class SignUpView(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request, format=None):
-        serializer = SignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class CreateUserView(generics.CreateAPIView):
+    model = User
+    serializer_class = UserSerializer
 
 
-class SignInView(APIView):
-    permission_classes = (AllowAny,)
+class CreateTokenView(APIView):
+    serializer_class = AuthTokenSerializer
 
-    def post(self, request, format=None):
-        serializer = SignInSerializer(data=request.data)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
             token, created = Token.objects.get_or_create(user=user)
