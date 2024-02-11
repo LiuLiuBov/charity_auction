@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import *
+
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -16,6 +18,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class SignInSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(style={'input_type': 'password'})
@@ -25,6 +28,7 @@ class SignInSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials")
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,13 +43,23 @@ class BidSerializer(serializers.ModelSerializer):
         read_only_fields = ['bidder']
 
 
+class AuctionListingPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuctionListingPhoto
+        fields = ['id', 'photo']
+        read_only_fields = ['id']
+
+
 class AuctionListingSerializer(serializers.ModelSerializer):
     bids = BidSerializer(many=True, read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
+    photos = AuctionListingPhotoSerializer(many=True)
 
     class Meta:
         model = AuctionListing
-        fields = ['id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids']
+        fields = [
+            'id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids', 'photos'
+        ]
         read_only_fields = ['owner', 'current_bid']
 
     def validate_title(self, value):
