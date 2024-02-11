@@ -161,9 +161,9 @@ const AuctionListing = () => {
               >
                 <option value="">Select a Category</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.title}
-                  </option>
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
                 ))}
               </Input>
             </FormGroup>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Form, Input, Button } from 'reactstrap';
+import { useNavigate } from "react-router-dom";
 
 const FilterContainer = ({ filters, onFilterChange, onSortChange, onCreateNewAuction }) => {
+    const navigate = useNavigate();
     const handleFilterChange = (e) => {
         onFilterChange(e.target.name, e.target.value);
     };
@@ -11,7 +13,7 @@ const FilterContainer = ({ filters, onFilterChange, onSortChange, onCreateNewAuc
     };
 
     const handleCreateNewAuction = () => {
-        onCreateNewAuction();
+        navigate('/new-lot');
     };
 
     return (

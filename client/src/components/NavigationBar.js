@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import logoImage from '../assets/logo.PNG'
+import logoImage from '../assets/logo.png'
 import '../styles/navigation.css'
 
 const NavigationBar = () => {
