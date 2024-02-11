@@ -4,6 +4,7 @@ import { Container, Form, FormGroup, Label, Input, Button, Nav, NavItem, NavLink
 import axios from 'axios';
 import {useAuth} from "../contexts/useAuth";
 import {useNavigate} from "react-router-dom";
+import {dispatchAuthEvent} from "../auth";
 
 const SignUpSignIn = () => {
   const [activeTab, setActiveTab] = useState('1');
@@ -46,6 +47,7 @@ const SignUpSignIn = () => {
         signUpForm.reset();
       } else {
         signIn({token: response.data.token}); // save the token after sign in
+        dispatchAuthEvent();
         navigate('/');
       }
     } catch (error) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import logoImage from '../assets/logo.PNG';
 import '../styles/navigation.css';
+import {dispatchAuthEvent} from "../auth";
 
 const NavigationBar = () => {
     const [showNavbar, setShowNavbar] = useState(false);
@@ -13,6 +14,19 @@ const NavigationBar = () => {
         setIsAuthenticated(!!token);
     }, []);
 
+     useEffect(() => {
+        const tokenCheck = () => setIsAuthenticated(!!localStorage.getItem('token'));
+        tokenCheck();
+
+        // Set up the event listener for the custom authChange event
+        window.addEventListener('authChange', tokenCheck);
+
+        // Clean up the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener('authChange', tokenCheck);
+        };
+    }, []);
+
     const handleShowNavbar = () => {
         setShowNavbar(!showNavbar);
     };
@@ -20,6 +34,7 @@ const NavigationBar = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         setIsAuthenticated(false);
+        dispatchAuthEvent();
         navigate('/signin');
     };
 
