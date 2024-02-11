@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/MainPage.css';
 import AuctionCard from "../components/AuctionCard";
-import image from '../assets/logo.png'
+import image from '../assets/logo.PNG'
 import image2 from '../assets/crash.jpg'
 import image3 from '../assets/crash2.jpg'
 import FilterContainer from "../components/FilterContainer";
