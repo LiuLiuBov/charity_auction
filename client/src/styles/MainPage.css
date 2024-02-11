@@ -1,0 +1,49 @@
+.main-page {
+    display: grid;
+    grid-template-columns: 20% auto;
+    gap: 1rem;
+    margin: 1rem;
+}
+
+.filter-panel {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.auction-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.auction-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.auction-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.auction-name {
+    font-size: 1.5em;
+    margin: 0;
+    color: #333;
+}
+
+.auction-price {
+    font-size: 1.2em;
+    color: #888;
+}
+
+.auction-description {
+    font-size: 1em;
+    color: #666;
+}
