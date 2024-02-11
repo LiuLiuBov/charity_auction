@@ -33,8 +33,9 @@ class BidConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_bids(self):
         from .models import Bid
+        from .serializers import BidSerializer
 
-        bids = list(Bid.objects.filter(auction_listing_id=self.auction_id)
-                    .values('id', 'amount', 'bidder__username', 'created_at')
-                    .order_by('-created_at'))
-        return {'type': 'bids', 'bids': bids}
+        bids_queryset = Bid.objects.filter(auction_listing_id=self.auction_id).order_by('-created_at')
+        serializer = BidSerializer(bids_queryset, many=True)
+
+        return {'type': 'bids', 'bids': serializer.data}
