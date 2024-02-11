@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils import timezone
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
@@ -23,6 +25,7 @@ class AuctionListing(models.Model):
     current_bid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=None)
     active = models.BooleanField(default=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='auctions', null=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.title}"
@@ -35,11 +38,13 @@ class Bid(models.Model):
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bids')
     auction_listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name='bids')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(default=timezone.now)
 
 class Comment(models.Model):
     commentator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     auction_listing = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name='comments')
     text = models.CharField(max_length=1000)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.text}"
