@@ -1,0 +1,33 @@
+.new-lot-form {
+  border: 0.3rem solid;
+  padding: 1rem;
+  margin: 1rem;
+  width: 60rem;
+  height: 2rem !important;
+}
+
+.photo-column {
+  border-right: 0.3rem solid;
+}
+
+.create-lot-button {
+  float: right;
+  width: 10rem;
+  margin-top: 1rem;
+}
+
+.image-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-preview {
+  border: 0.3rem solid #ced4da;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.choose-image-label {
+  margin-top: 2rem;
+}
