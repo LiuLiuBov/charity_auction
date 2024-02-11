@@ -1,29 +1,67 @@
 from django.shortcuts import render
-from rest_framework import generics, serializers, status
+from rest_framework import generics, serializers, status, permissions
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
-from .models import AuctionListing, Bid
-from .serializers import BidSerializer
+from .serializers import *
+
+class SignUpView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = SignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SignInView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = SignInSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DefaultPermissionsMixin():
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated(), permissions.IsAdminUser()]
+
+
+class CategoryListCreateAPIView(DefaultPermissionsMixin, generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class CategoryDetailAPIView(DefaultPermissionsMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class BidCreateAPIView(generics.CreateAPIView):
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         auction_id = self.kwargs.get('id')
         auction = generics.get_object_or_404(AuctionListing, id=auction_id)
 
-        # Check if the user is the auction owner
         if self.request.user == auction.owner:
             raise PermissionDenied('Auction owners cannot bid on their own auctions.')
 
-        # Validate bid amount
         if auction.current_bid and serializer.validated_data['amount'] <= auction.current_bid:
             raise serializers.ValidationError('Your bid must be higher than the current bid.')
         elif serializer.validated_data['amount'] <= auction.starting_bid:
@@ -31,7 +69,6 @@ class BidCreateAPIView(generics.CreateAPIView):
 
         serializer.save(bidder=self.request.user, auction_listing=auction)
 
-        # Update current bid in the AuctionListing
         auction.current_bid = serializer.validated_data['amount']
         auction.save()
 
@@ -46,3 +83,16 @@ class BidCreateAPIView(generics.CreateAPIView):
                 'message': {'info': 'New bid placed'}
             }
         )
+
+
+class AuctionListingListCreateAPIView(DefaultPermissionsMixin, generics.ListCreateAPIView):
+    queryset = AuctionListing.objects.all()
+    serializer_class = AuctionListingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class AuctionListingDetailAPIView(DefaultPermissionsMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = AuctionListing.objects.all()
+    serializer_class = AuctionListingSerializer
