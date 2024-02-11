@@ -1,7 +1,9 @@
+from django.db import transaction
 from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.authtoken.models import Token
 from .serializers import *
 from rest_framework import generics, status
@@ -75,7 +77,7 @@ class BidCreateAPIView(generics.CreateAPIView):
     def _trigger_bid_broacast(self, auction_id):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            f'auction_{auction_id}',  # Use the actual auction ID
+            f'auction_{auction_id}',
             {
                 'type': 'broadcast_bid',
                 'message': {'info': 'New bid placed'}
@@ -86,11 +88,41 @@ class BidCreateAPIView(generics.CreateAPIView):
 class AuctionListingListCreateAPIView(DefaultPermissionsMixin, generics.ListCreateAPIView):
     queryset = AuctionListing.objects.all()
     serializer_class = AuctionListingSerializer
+    parser_classes = (MultiPartParser, JSONParser)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        with transaction.atomic():
+            auction_listing = serializer.save(owner=self.request.user)
+
+            photos_data = self.request.FILES.getlist('photos')
+            for photo_data in photos_data:
+                AuctionListingPhoto.objects.create(auction_listing=auction_listing, photo=photo_data)
 
 
 class AuctionListingDetailAPIView(DefaultPermissionsMixin, generics.RetrieveUpdateDestroyAPIView):
     queryset = AuctionListing.objects.all()
     serializer_class = AuctionListingSerializer
+
+
+class CommentListCreateAPIView(DefaultPermissionsMixin, generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        auction_id = self.kwargs.get('id')
+        return Comment.objects.filter(auction_listing_id=auction_id)
+
+    def perform_create(self, serializer):
+        auction_id = self.kwargs.get('id')
+        auction_listing = generics.get_object_or_404(AuctionListing, id=auction_id)
+        serializer.save(commentator=self.request.user, auction_listing=auction_listing)
+        self.broadcast_comment(auction_id)
+
+    def broadcast_comment(self, auction_id):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'comments_{auction_id}',
+            {
+                'type': 'comment_created',
+                'message': {'info': 'New comment added'}
+            }
+        )

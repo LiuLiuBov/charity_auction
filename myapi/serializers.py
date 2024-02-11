@@ -27,6 +27,7 @@ class AuthTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError('Unable to log in with provided credentials.')
         return user
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -36,18 +37,29 @@ class CategorySerializer(serializers.ModelSerializer):
 class BidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid
-        fields = ['id', 'bidder', 'amount']
-        read_only_fields = ['bidder']
+        fields = ['id', 'bidder', 'amount', 'created_at']
+        read_only_fields = ['bidder', 'created_at']
+
+
+class AuctionListingPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuctionListingPhoto
+        fields = ['id', 'photo']
+        read_only_fields = ['id']
 
 
 class AuctionListingSerializer(serializers.ModelSerializer):
     bids = BidSerializer(many=True, read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
+    photos = AuctionListingPhotoSerializer(many=True)
 
     class Meta:
         model = AuctionListing
-        fields = ['id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids']
-        read_only_fields = ['owner', 'current_bid']
+        fields = [
+            'id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids',
+            'photos', 'created_at'
+        ]
+        read_only_fields = ['owner', 'current_bid', 'created_at']
 
     def validate_title(self, value):
         if len(value) < 5:
@@ -63,3 +75,10 @@ class AuctionListingSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("Starting bid must be greater than 0.")
         return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        read_only_fields = ('auction_listing', 'commentator', 'created_at')
