@@ -45,11 +45,23 @@ const SignUpSignIn = () => {
         setActiveTab('2');    // automatically switch to the sign-in tab
         signUpForm.reset();
       } else {
-        signIn({ token: response.data.token }); // save the token after sign in
+        signIn({token: response.data.token}); // save the token after sign in
         navigate('/');
       }
     } catch (error) {
-      console.error(error);
+      if (error.response && error.response.data) {
+        const errors = error.response.data;
+        let message = '';
+        if (errors.username) {
+          message += errors.username.join(' ') + '\n';
+        }
+        if (errors.email) {
+          message += errors.email.join(' ') + '\n';
+        }
+        alert(message);
+      } else {
+        console.error(error);
+      }
     }
   };
 

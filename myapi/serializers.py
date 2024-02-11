@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+from rest_framework.exceptions import ValidationError
+
 from .models import *
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
@@ -11,6 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise ValidationError("A user with that email already exists.")
+        return value
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
