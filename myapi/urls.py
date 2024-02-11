@@ -3,9 +3,10 @@ from .views import (BidCreateAPIView,
                     CategoryListCreateAPIView,
                     CategoryDetailAPIView,
                     AuctionListingListCreateAPIView,
-                    AuctionListingDetailAPIView, 
-                    SignInView, 
-                    SignUpView)
+                    AuctionListingDetailAPIView,
+                    SignInView,
+                    SignUpView,
+                    CommentListCreateAPIView)
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
@@ -15,4 +16,5 @@ urlpatterns = [
     path('categories/<int:pk>/', CategoryDetailAPIView.as_view(), name='category-detail'),
     path('auctions/', AuctionListingListCreateAPIView.as_view(), name='auction-listing-list-create'),
     path('auctions/<int:pk>/', AuctionListingDetailAPIView.as_view(), name='auction-listing-detail'),
+    path('api/auctions/<int:id>/comments/', CommentListCreateAPIView.as_view(), name='auction-comments'),
 ]

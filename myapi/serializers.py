@@ -77,3 +77,10 @@ class AuctionListingSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("Starting bid must be greater than 0.")
         return value
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        read_only_fields = ('auction_listing', 'commentator', 'created_at')
