@@ -1,52 +1,40 @@
-import React from 'react';
 import '../styles/MainPage.css';
 import AuctionCard from "../components/AuctionCard";
-import image from '../assets/logo.PNG'
-import image2 from '../assets/crash.jpg'
-import image3 from '../assets/crash2.jpg'
 import FilterContainer from "../components/FilterContainer";
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+
+
 
 const MainPage = () => {
+    const [auctions, setAuctions] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/auctions/');
+                setAuctions(response.data);
+            } catch (error) {
+                console.error('Error fetching auctions:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <div className="main-page">
             <FilterContainer />
             <div className="auction-container">
-                <AuctionCard
-                    images={[image3, image2]}
-                    name="Ющенко"
-                    price="1 UAH"
-                    description="Люблю його"
-                />
-                <AuctionCard
-                    images={[image]}
-                    name="Green Boot"
-                    price="200 UAH"
-                    description="Unique, slightly worn"
-                />
-                <AuctionCard
-                    images={[image]}
-                    name="Green Boot"
-                    price="200 UAH"
-                    description="Unique, slightly worn"
-                />
-                <AuctionCard
-                    images={[image]}
-                    name="Green Boot"
-                    price="200 UAH"
-                    description="Unique, slightly worn"
-                />
-                <AuctionCard
-                    images={[image]}
-                    name="Green Boot"
-                    price="200 UAH"
-                    description="Unique, slightly worn"
-                />
-                <AuctionCard
-                    images={[image]}
-                    name="Green Boot"
-                    price="200 UAH"
-                    description="Unique, slightly worn"
-                />
+                {auctions.map(auction => (
+                    <AuctionCard
+                        key={auction.id}
+                        images={auction.photos.map(photo => photo.photo)}
+                        name={auction.title}
+                        price={auction.starting_bid + ' UAH'}
+                        description={auction.description}
+                    />
+                ))}
             </div>
         </div>
     );
