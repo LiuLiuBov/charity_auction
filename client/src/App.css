@@ -1,38 +1,33 @@
-.App {
-  text-align: center;
+.new-lot-form {
+  border: 0.3rem solid;
+  padding: 1rem;
+  margin: 1rem;
+  width: 60rem;
+  height: 2rem !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.photo-column {
+  border-right: 0.3rem solid;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.create-lot-button {
+  float: right;
+  width: 10rem;
+  margin-top: 1rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.image-preview-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.image-preview {
+  border: 0.3rem solid #ced4da;
+  padding: 0.5rem;
+  border-radius: 5px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.choose-image-label {
+  margin-top: 2rem;
 }
