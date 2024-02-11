@@ -39,8 +39,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class BidSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bid
-        fields = ['id', 'bidder', 'amount']
-        read_only_fields = ['bidder']
+        fields = ['id', 'bidder', 'amount', 'created_at']
+        read_only_fields = ['bidder', 'created_at']
 
 
 class AuctionListingPhotoSerializer(serializers.ModelSerializer):
@@ -58,9 +58,10 @@ class AuctionListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuctionListing
         fields = [
-            'id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids', 'photos'
+            'id', 'title', 'description', 'starting_bid', 'current_bid', 'active', 'category', 'owner', 'bids',
+            'photos', 'created_at'
         ]
-        read_only_fields = ['owner', 'current_bid']
+        read_only_fields = ['owner', 'current_bid', 'created_at']
 
     def validate_title(self, value):
         if len(value) < 5:
