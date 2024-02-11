@@ -150,4 +150,11 @@ REST_FRAMEWORK = {
     ],
 }
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'myapi.backends.EmailAuthBackend',
+]
+
+AUTH_USER_MODEL = 'myapi.CustomUser'
+
 CORS_ALLOW_ALL_ORIGINS = True

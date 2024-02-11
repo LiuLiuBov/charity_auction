@@ -2,11 +2,14 @@ import React, {useState} from 'react';
 import { useForm } from '../hooks/useForm';
 import { Container, Form, FormGroup, Label, Input, Button, Nav, NavItem, NavLink, TabContent, TabPane, Row, Col, FormFeedback } from 'reactstrap';
 import axios from 'axios';
+import {useAuth} from "../contexts/useAuth";
+import {useNavigate} from "react-router-dom";
+import {dispatchAuthEvent} from "../auth";
 
 const SignUpSignIn = () => {
   const [activeTab, setActiveTab] = useState('1');
   const signUpForm = useForm({
-    name: '',
+    username: '',
     email: '',
     password: '',
     repeatPassword: '',
@@ -16,27 +19,51 @@ const SignUpSignIn = () => {
     password: '',
   });
 
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+
   const toggleTab = tab => {
     if(activeTab !== tab) setActiveTab(tab);
   };
 
-  // TODO: connect with backend
   const handleSubmit = async (event, formType) => {
     event.preventDefault();
+
     if (formType === 'signUp' && !signUpForm.validate()) {
       return;
     }
 
-    const endpoint = formType === 'signUp' ? '/api/signup' : '/api/signin';
+    const endpoint = formType === 'signUp' ? 'http://127.0.0.1:8000/api/signup/' : 'http://127.0.0.1:8000/api/signin/';
     const formData = formType === 'signUp' ? signUpForm.values : signInForm.values;
+
+    console.log("FormData: ", formData);
 
     try {
       const response = await axios.post(endpoint, formData);
       console.log(response.data);
-      // Handle success
+
+      if (formType === 'signUp') {
+        setActiveTab('2');    // automatically switch to the sign-in tab
+        signUpForm.reset();
+      } else {
+        signIn({token: response.data.token}); // save the token after sign in
+        dispatchAuthEvent();
+        navigate('/');
+      }
     } catch (error) {
-      console.error(error);
-      // Handle error
+      if (error.response && error.response.data) {
+        const errors = error.response.data;
+        let message = '';
+        if (errors.username) {
+          message += errors.username.join(' ') + '\n';
+        }
+        if (errors.email) {
+          message += errors.email.join(' ') + '\n';
+        }
+        alert(message);
+      } else {
+        console.error(error);
+      }
     }
   };
 
@@ -66,13 +93,14 @@ const SignUpSignIn = () => {
                   <Label for="signUpName">Name</Label>
                   <Input
                     type="text"
-                    name="name"
+                    name="username"
                     id="signUpName"
                     placeholder="Enter your name"
+                    value={signUpForm.values.username}
                     onChange={signUpForm.handleChange}
-                    invalid={!!signUpForm.errors.name}
+                    invalid={!!signUpForm.errors.username}
                   />
-                  {signUpForm.errors.name && <FormFeedback>{signUpForm.errors.name}</FormFeedback>}
+                  {signUpForm.errors.username && <FormFeedback>{signUpForm.errors.username}</FormFeedback>}
                 </FormGroup>
 
                 <FormGroup>
@@ -82,6 +110,7 @@ const SignUpSignIn = () => {
                       name="email"
                       id="signUpEmail"
                       placeholder="Enter email"
+                      value={signUpForm.values.email}
                       onChange={signUpForm.handleChange}
                       invalid={!!signUpForm.errors.email}
                   />
@@ -95,6 +124,7 @@ const SignUpSignIn = () => {
                       name="password"
                       id="signUpPassword"
                       placeholder="Enter password"
+                      value={signUpForm.values.password}
                       onChange={signUpForm.handleChange}
                       invalid={!!signUpForm.errors.password}
                   />
@@ -108,6 +138,7 @@ const SignUpSignIn = () => {
                       name="repeatPassword"
                       id="signUpRepeatPassword"
                       placeholder="Repeat password"
+                      value={signUpForm.values.repeatPassword}
                       onChange={signUpForm.handleChange}
                       invalid={!!signUpForm.errors.repeatPassword}
                   />
@@ -127,6 +158,7 @@ const SignUpSignIn = () => {
                     name="email"
                     id="signInEmail"
                     placeholder="Enter email"
+                    value={signInForm.values.email}
                     onChange={signInForm.handleChange}
                 />
               </FormGroup>
@@ -138,6 +170,7 @@ const SignUpSignIn = () => {
                     name="password"
                     id="signInPassword"
                     placeholder="Enter password"
+                    value={signInForm.values.password}
                     onChange={signInForm.handleChange}
                 />
               </FormGroup>

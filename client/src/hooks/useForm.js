@@ -13,10 +13,15 @@ export const useForm = (initialValues) => {
     });
   };
 
+  const reset = () => {
+    setValues(initialValues);
+    setErrors({});
+  };
+
   const validate = () => {
     let tempErrors = {...errors};
-    if ('name' in values)
-      tempErrors.name = values.name ? '' : 'Name cannot be empty.';
+    if ('username' in values)
+      tempErrors.username = values.username ? '' : 'Name cannot be empty.';
 
     if ('email' in values)
       tempErrors.email = isEmail(values.email) ? '' : 'Enter a valid email address.';
@@ -39,7 +44,10 @@ export const useForm = (initialValues) => {
   return {
     handleChange,
     values,
+    setValues,
     validate,
     errors,
+    setErrors,
+    reset,
   };
 };

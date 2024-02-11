@@ -5,20 +5,23 @@ import SignUpSignIn from './pages/SignUpSignIn';
 import NavigationBar from './components/NavigationBar';
 import MainPage from "./pages/MainPage";
 import AuctionListing from "./pages/AuctionListing";
+import {AuthProvider} from "./contexts/useAuth";
 
 function App() {
     const [signedId, setSignedId] = useState(false)
 
     return (
-        <Router>
-            <NavigationBar />
-            <Routes>
-                <Route exact path="/" element={<MainPage/>}></Route>
-                <Route exact path="/signin" element={<SignUpSignIn/>}></Route>
-                <Route exact path="/signup" element={<SignUpSignIn/>}></Route>
-                <Route exact path="/new-lot" element={<AuctionListing/>}></Route>
-            </Routes>
-        </Router>
+         <AuthProvider>
+            <Router>
+                <NavigationBar />
+                <Routes>
+                    <Route exact path="/" element={<MainPage/>}></Route>
+                    <Route exact path="/signin" element={<SignUpSignIn/>}></Route>
+                    <Route exact path="/signup" element={<SignUpSignIn/>}></Route>
+                    <Route exact path="/new-lot" element={<AuctionListing/>}></Route>
+                </Routes>
+            </Router>
+         </AuthProvider>
     );
 }
 
